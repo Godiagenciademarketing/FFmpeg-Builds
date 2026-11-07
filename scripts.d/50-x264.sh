@@ -4,6 +4,7 @@ SCRIPT_REPO="https://code.videolan.org/videolan/x264.git"
 SCRIPT_COMMIT="0480cb05fa188d37ae87e8f4fd8f1aea3711f7ee"
 
 ffbuild_enabled() {
+    return -1   # Godit: sin codificadores con patentes (usa los de Windows)
     [[ $VARIANT == lgpl* ]] && return -1
     return 0
 }
