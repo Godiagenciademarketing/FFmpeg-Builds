@@ -1,0 +1,59 @@
+name: Publicar codigo fuente (GPL)
+
+# Publica, como «release» de este repositorio, el código fuente completo correspondiente al motor de Godit:
+# FFmpeg del commit usado + todas las librerías descargadas por las recetas (caché de descargas) + estas recetas.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Número de la fabricación (Build FFmpeg) cuyo motor va en Godit'
+        required: true
+      ffmpeg_sha:
+        description: 'Commit de FFmpeg de esa fabricación'
+        required: true
+      etiqueta:
+        description: 'Nombre de la publicación (por ejemplo fuentes-godit-0.37.2)'
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  fuentes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Caché de descargas de esa fabricación
+        uses: actions/download-artifact@v8
+        with:
+          name: download-cache
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: dl
+      - name: Armar los archivos
+        run: |
+          set -xe
+          mkdir -p pub
+          curl -fL -o "pub/ffmpeg-fuente-${{ github.event.inputs.ffmpeg_sha }}.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/${{ github.event.inputs.ffmpeg_sha }}.tar.gz"
+          F=$(find dl -name '*.tar.gz' | head -1)
+          split -b 1900M -d "$F" pub/librerias-fuente.tar.gz.parte-
+          git archive --format=tar.gz -o pub/recetas-de-compilacion.tar.gz HEAD
+          cat > pub/LEEME.txt <<'EOF'
+          Codigo fuente correspondiente del motor de video (FFmpeg, GPL-3.0) incluido en Godit.
+          - ffmpeg-fuente-*.tar.gz: FFmpeg del commit indicado.
+          - librerias-fuente.tar.gz.parte-00, -01...: todas las librerias que usan las recetas. Unir con:
+              cat librerias-fuente.tar.gz.parte-* > librerias-fuente.tar.gz   (Windows: copy /b librerias-fuente.tar.gz.parte-00+librerias-fuente.tar.gz.parte-01 librerias-fuente.tar.gz)
+          - recetas-de-compilacion.tar.gz: las recetas exactas (este repositorio) para volver a compilarlo: ./build.sh win64 "gpl 9.0"
+          EOF
+          sed -i 's/^          //' pub/LEEME.txt
+          (cd pub && sha256sum * > SHA256SUMS.txt)
+          ls -la pub
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.event.inputs.etiqueta }}" pub/* --target "$GITHUB_SHA" \
+            --title "Código fuente del motor de Godit (${{ github.event.inputs.etiqueta }})" \
+            --notes "Código fuente completo (GPL-3.0) del FFmpeg que va dentro de Godit: FFmpeg ${{ github.event.inputs.ffmpeg_sha }}, todas sus librerías y las recetas. Fabricación: ${{ github.event.inputs.run_id }}."
