@@ -28,7 +28,7 @@ runs:
         set -eo pipefail
         shopt -s nullglob
         declare -A SRCS
-        for F in "$RUNNER_TEMP"/imgmerge/*/image; do
+        for F in "$RUNNER_TEMP"/imgmerge/*/image "$RUNNER_TEMP"/imgmerge/imag[e]; do   # con una sola pieza, download-artifact la deja sin subcarpeta
           REF="$(<"$F")"
           SRCS["${REF%:*}"]+=" ${REF}"
         done
