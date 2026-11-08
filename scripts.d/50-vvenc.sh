@@ -4,6 +4,7 @@ SCRIPT_REPO="https://github.com/fraunhoferhhi/vvenc.git"
 SCRIPT_COMMIT="0e7508b811bbea3cd510956ddb3193f3a4c93684"
 
 ffbuild_enabled() {
+    return -1   # Godit: codificador con patentes, no se incluye
     [[ $TARGET != *32 ]] || return -1
     (( $(ffbuild_ffver) > 700 )) || return -1
     return 0

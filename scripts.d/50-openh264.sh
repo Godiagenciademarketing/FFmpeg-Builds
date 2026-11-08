@@ -4,6 +4,7 @@ SCRIPT_REPO="https://github.com/cisco/openh264.git"
 SCRIPT_COMMIT="1bca62311e447fd9c39fc93de2c4b96cd5ce971c"
 
 ffbuild_enabled() {
+    return -1   # Godit: codificador con patentes, no se incluye
     return 0
 }
 

@@ -4,6 +4,7 @@ SCRIPT_REPO="https://github.com/pkuvcl/xavs2.git"
 SCRIPT_COMMIT="eae1e8b9d12468059bdd7dee893508e470fa83d8"
 
 ffbuild_enabled() {
+    return -1   # Godit: codificador con patentes, no se incluye
     [[ $VARIANT == lgpl* ]] && return -1
     [[ $TARGET == win32 ]] && return -1
     # xavs2 aarch64 support is broken

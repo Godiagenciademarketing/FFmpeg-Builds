@@ -1,4 +1,4 @@
-FF_CONFIGURE="--enable-gpl --enable-version3 --disable-debug"
+FF_CONFIGURE="--enable-gpl --enable-version3 --disable-debug --disable-encoder=h264_nvenc,hevc_nvenc,h264_amf,hevc_amf,h264_qsv,hevc_qsv,h264_vaapi,hevc_vaapi,h264_vulkan,hevc_vulkan,h264_d3d12va,hevc_d3d12va"
 FF_CFLAGS=""
 FF_CXXFLAGS=""
 FF_LDFLAGS=""
