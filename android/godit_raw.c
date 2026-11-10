@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int godit_raw_leer(const char *ruta, unsigned short **datos, int *ancho, int *alto) {
     libraw_data_t *lr = libraw_init(0);
     if (!lr) return -1;
@@ -38,3 +42,7 @@ int godit_raw_leer(const char *ruta, unsigned short **datos, int *ancho, int *al
 }
 
 void godit_raw_liberar(unsigned short *p) { free(p); }
+
+#ifdef __cplusplus
+}
+#endif

@@ -28,7 +28,7 @@ jobs:
           curl -fL -o "pub/ffmpeg-${{ github.event.inputs.ffmpeg_sha }}.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/${{ github.event.inputs.ffmpeg_sha }}.tar.gz"
           grep -oE 'bajar https?://[^ ]+' android/build-ffmpeg-android.sh | awk '{print $2}' | sort -u > pub/direcciones.txt
           while read -r u; do curl -fL -o "pub/$(basename "$u")" "$u" || curl -fL -o "pub/$(echo "$u" | sed 's|https\?://||; s|/|_|g')" "$u"; done < pub/direcciones.txt
-          cp android/build-ffmpeg-android.sh android/godit_raw.c android/LEEME.txt pub/
+          cp android/build-ffmpeg-android.sh android/build-raw-android.sh android/godit_raw.c android/LEEME.txt pub/
           (cd pub && sha256sum * > SHA256SUMS.txt)
           ls -la pub
       - name: Publicar
