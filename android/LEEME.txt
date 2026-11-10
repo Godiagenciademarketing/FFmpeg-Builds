@@ -1,0 +1,4 @@
+Receta de compilacion de FFmpeg (GPL-3.0), LibRaw y whisper.cpp para Godit para Android.
+- build-ffmpeg-android.sh: descarga y compila todo con el NDK de Android (ARCH=arm64 o ARCH=x86_64).
+- godit_raw.c: puente entre LibRaw y Python.
+El codigo fuente completo de cada version de Godit se publica en la seccion Releases («fuentes-godit-android-<version>»).

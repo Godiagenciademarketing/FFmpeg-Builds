@@ -1,0 +1,40 @@
+name: Publicar codigo fuente de Android (GPL)
+
+# Publica, como «release», el codigo fuente completo del FFmpeg y las librerias que lleva Godit para Android (GPL-3.0),
+# mas la receta exacta de compilacion. Las direcciones salen de android/build-ffmpeg-android.sh.
+on:
+  workflow_dispatch:
+    inputs:
+      etiqueta:
+        description: 'Nombre de la publicacion (por ejemplo fuentes-godit-android-0.1.0)'
+        required: true
+      ffmpeg_sha:
+        description: 'Commit de FFmpeg usado'
+        default: 'd4070a14cecc7e29eb278f9b6036c2284255f70d'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fuentes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar el codigo fuente de todo
+        run: |
+          set -xe
+          mkdir -p pub
+          curl -fL -o "pub/ffmpeg-${{ github.event.inputs.ffmpeg_sha }}.tar.gz" "https://github.com/FFmpeg/FFmpeg/archive/${{ github.event.inputs.ffmpeg_sha }}.tar.gz"
+          grep -oE 'bajar https?://[^ ]+' android/build-ffmpeg-android.sh | awk '{print $2}' | sort -u > pub/direcciones.txt
+          while read -r u; do curl -fL -o "pub/$(basename "$u")" "$u" || curl -fL -o "pub/$(echo "$u" | sed 's|https\?://||; s|/|_|g')" "$u"; done < pub/direcciones.txt
+          cp android/build-ffmpeg-android.sh android/godit_raw.c android/LEEME.txt pub/
+          (cd pub && sha256sum * > SHA256SUMS.txt)
+          ls -la pub
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.event.inputs.etiqueta }}" pub/* --target "$GITHUB_SHA" \
+            --title "Codigo fuente de Godit para Android (${{ github.event.inputs.etiqueta }})" \
+            --notes "Codigo fuente completo (GPL-3.0) de FFmpeg y sus librerias (FreeType, HarfBuzz, FriBidi, libass, zimg, vid.stab, SVT-AV1), LibRaw y whisper.cpp, con la receta de compilacion."
